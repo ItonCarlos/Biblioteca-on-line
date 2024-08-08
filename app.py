@@ -1,14 +1,22 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import pandas as pd
+
 
 app = Flask(__name__)
 
 # Configuração do banco de dados SQLite
+app.config["SECRET_KEY"] = "Biblioteca@1020"  # Substitua por uma chave secreta segura
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///livros.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
+bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
+login_manager.login_view = "login"
+
 
 class Livro(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -49,8 +57,23 @@ with app.app_context():
             db.session.add(livro)
     db.session.commit() 
 
+    #Classe criação modelo de usuario
+    class User(db.Model, UserMixin):
+        id = db.Column(db.Integer, primary_key=True)
+        username = db.Column(db.String(150), nullable=False, unique=True)
+        password = db.Column(db.String(150), nullable=False)
+
+        def __init__(self, username, password):
+            self.username = username
+            self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+        @login_manager.user_loader
+        def load_user(user_id):
+            return User.query.get(int(user_id))    
+
     #Criar a rota para exibir todos os livros
     @app.route("/inicio")
+    @login_required
     def inicio():
         livros = Livro.query.all()
         return render_template("lista.html", lista_de_livros=livros)
@@ -62,12 +85,14 @@ with app.app_context():
 
     #Criar a rota para a página de adicionar novos livros
     @app.route("/novo")
+    @login_required
     def novo():
         return render_template("novo.html", titulo="Novo Livro") 
 
 
     #Crir uma rota para processar o formulário e salvar o novo livro
     @app.route("/criar", methods=["POST"])
+    @login_required
     def criar():
         titulo = request.form["titulo"]
         autor = request.form["autor"]
@@ -86,6 +111,7 @@ with app.app_context():
     
     #Criar a rota para deletar livros
     @app.route("/deletar/<int:id>")
+    @login_required
     def deletar(id):
         # Buscar o livro pelo ID
         livro = Livro.query.get(id)
@@ -98,6 +124,7 @@ with app.app_context():
     
     #Criar a rota para editar os livros
     @app.route("/editar/<int:id>")
+    @login_required
     def editar(id):
         # Buscar o livro pelo ID
         livro = Livro.query.get(id)
@@ -107,6 +134,7 @@ with app.app_context():
     
     #Criar a rota para processar a atualização
     @app.route("/atualizar/<int:id>", methods=["POST"])
+    @login_required
     def atualizar(id):
         # Buscar o livro pelo ID
         livro = Livro.query.get(id)
@@ -119,6 +147,30 @@ with app.app_context():
             livro.editora = request.form["editora"]
             db.session.commit()
         return redirect(url_for("inicio"))
+    
+    #Criar a rota para o formulario de login
+    @app.route("/login", methods=["GET", "POST"])
+    def login():
+        if request.method == "POST":
+            username = request.form.get("username")
+            password = request.form.get("password")
+            user = User.query.filter_by(username=username).first()
+            if user and bcrypt.check_password_hash(user.password, password):
+                login_user(user)
+                return redirect(url_for("inicio"))
+            else:
+                flash("Login ou senha incorretos. Tente novamente.")
+        return render_template("login.html")
+    
+    #Criar rota para logout do usuario
+    @app.route("/logout")
+    @login_required
+    def logout():
+        logout_user()
+        return redirect(url_for("login"))
+    
+    
+    
 
     
     if __name__ == "__main__":

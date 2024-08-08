@@ -23,39 +23,21 @@
       .table-container {
         margin-top: 20px;
       }
+      .btn-gray {
+      background-color: #6c757d; /* Cinza padrão do Bootstrap */
+      color: #fff;
+      }
+      .btn-gray:hover {
+      background-color: #5a6268; /* Cinza escuro para o efeito de hover */
+      color: #fff;
+      }
+
+      
     </style>
     <script src="https://cdn.jsdelivr.net/npm/vanilla-datatables@latest/dist/vanilla-dataTables.min.js"></script>
 </head>
 <body>
-    <div class="container">
-      <div class="page-header">
-        <h1>Lista de Livros</h1>
-      </div>
-      <nav class="navbar navbar-dark bg-dark">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="#">Biblioteca</a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-              <li class="nav-item active">
-                <a class="nav-link" href="#">Home</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">Features</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#">Pricing</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
-      <a class="url" href="/curriculo">Currículo</a><br />
+    {% include 'menu.html' %}
       <div class="table-container">
         <table id="booksTable" class="table table-striped table-hover">
           <thead class="thead-dark">
