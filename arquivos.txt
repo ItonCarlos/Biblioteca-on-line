@@ -1,0 +1,22 @@
+ALTER TABLE user
+ADD COLUMN first_name VARCHAR(150) NOT NULL;
+
+-- Adiciona a coluna 'last_name' à tabela 'user'
+ALTER TABLE user
+ADD COLUMN last_name VARCHAR(150) NOT NULL;
+
+-- Adiciona a coluna 'role' à tabela 'user'
+ALTER TABLE user
+ADD COLUMN role VARCHAR(150) NOT NULL;
+
+-- Adiciona a coluna 'is_admin' à tabela 'user'
+ALTER TABLE user
+ADD COLUMN is_admin BOOLEAN DEFAULT FALSE;
+
+-- Se precisar garantir que 'username' e 'password' não excedam 150 caracteres
+-- (supondo que essas colunas já existem com um comprimento menor)
+ALTER TABLE user
+MODIFY COLUMN username VARCHAR(150) NOT NULL UNIQUE;
+
+ALTER TABLE user
+MODIFY COLUMN password VARCHAR(150) NOT NULL;

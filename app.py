@@ -62,14 +62,25 @@ with app.app_context():
         id = db.Column(db.Integer, primary_key=True)
         username = db.Column(db.String(150), nullable=False, unique=True)
         password = db.Column(db.String(150), nullable=False)
+        first_name = db.Column(db.String(150), nullable=False)
+        last_name = db.Column(db.String(150), nullable=False)
+        role = db.Column(db.String(150), nullable=False)
+        is_admin = db.Column(db.Boolean, default=False)
 
-        def __init__(self, username, password):
+        def __init__(self, username, password, first_name, last_name, role, is_admin=False):
             self.username = username
-            self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+            self.password = bcrypt.generate_password_hash(password).decode("utf-8")
+            self.first_name = first_name
+            self.last_name = last_name
+            self.role = role
+            self.is_admin = is_admin
 
         @login_manager.user_loader
         def load_user(user_id):
-            return User.query.get(int(user_id))    
+            return User.query.get(int(user_id)) 
+
+
+
 
     #Criar a rota para exibir todos os livros
     @app.route("/inicio")
@@ -165,10 +176,45 @@ with app.app_context():
     #Criar rota para logout do usuario
     @app.route("/logout")
     @login_required
+    
     def logout():
         logout_user()
         return redirect(url_for("login"))
     
+    #Adicionar decorador para verificar administradores
+    from functools import wraps
+    from flask import abort
+
+    def admin_required(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated or not current_user.is_admin:
+                return abort(403)
+            return f(*args, **kwargs)
+        return decorated_function
+    #Criar rota para cadastro de usuario
+    @app.route("/cadastro", methods=["GET", "POST"])
+    @login_required
+    @admin_required
+    def cadastro():
+        if request.method == "POST":
+            username = request.form.get("username")
+            password = request.form.get("password")
+            # Verifique se o usuário já existe
+            existing_user = User.query.filter_by(username=username).first()
+            if existing_user:
+                flash("Nome de usuário já existe. Tente um diferente.")
+                return redirect(url_for("cadastro"))
+
+            # Criação de um novo usuário
+            new_user = User(username=username, password=password)
+            db.session.add(new_user)
+            db.session.commit()
+            flash("Cadastro realizado com sucesso! Você já pode fazer login.")
+            return redirect(url_for("login"))
+        return render_template("cadastro.html")
+    
+    #Adicionar decorador para verificar administradores
     
     
 

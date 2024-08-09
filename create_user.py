@@ -1,4 +1,5 @@
 from app import db, User, app
+from app import User
 
 # Criação de um novo contexto de aplicação
 with app.app_context():
@@ -6,10 +7,10 @@ with app.app_context():
     db.create_all()
 
     # Criação de um usuário de teste
-    username = "admin"
+    '''username = "admin"
     password = "senha123"
     admin = User(username=username, password=password)
     db.session.add(admin)
-    db.session.commit()
+    db.session.commit()'''
 
-    print(f"Usuário {username} criado com sucesso!")
+    #print(f"Usuário {username} criado com sucesso!")
