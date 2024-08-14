@@ -58,11 +58,9 @@ class User(db.Model, UserMixin):
         self.role = role
         self.is_admin = is_admin
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-        
-#Classe modelo de reserva de livros
+
+
+#Criar classe para reserva
 class Reservation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -71,8 +69,32 @@ class Reservation(db.Model):
 
     def __init__(self, user_id, book_id):
         self.user_id = user_id
-        self.book_id = book_id         
+        self.book_id = book_id 
+
+
+
+# Criar a classe para o modelo de Autor
+class Autor(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(200), nullable=False, unique=True)
+    biografia = db.Column(db.Text, nullable=True)
+
+    def __init__(self, nome, biografia=None):
+        self.nome = nome
+        self.biografia = biografia
+
+    def __repr__(self):
+        return f"<Autor {self.nome}>"
+
+
+
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
         
+
 
 
     
@@ -283,6 +305,60 @@ def dashboard():
                            livros_por_autor=livros_por_autor,
                            livros_por_ano=livros_por_ano,
                            livros_por_editora=livros_por_editora)
+
+#Crie uma nova rota para exibir o formulário de cadastro de autores:
+@app.route("/cadastro_autor", methods=["GET"])
+@login_required
+@admin_required
+def cadastro_autor():
+    return render_template("cadastro_autor.html")
+
+
+
+#Crie uma nova rota para processar o formulário e adicionar novos autores ao banco de dados
+@app.route("/criar_autor", methods=["POST"])
+@login_required
+@admin_required
+def criar_autor():
+    nome = request.form.get("nome")
+    biografia = request.form.get("biografia")
+
+    print(f"Nome do Autor: {nome}")
+    print(f"Biografia do Autor: {biografia}")
+
+    # Verificar se o autor já existe
+    autor_existente = Autor.query.filter_by(nome=nome).first()
+    if autor_existente:
+        flash("Autor já cadastrado.")
+        return redirect(url_for("cadastro_autor"))
+
+    # Criar novo autor e adicionar ao banco de dados
+    novo_autor = Autor(nome=nome, biografia=biografia)
+    db.session.add(novo_autor)
+
+    try:
+        db.session.commit()
+        print(f"Autor {nome} adicionado com sucesso.")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erro ao adicionar autor: {e}")
+        flash("Erro ao cadastrar o autor. Tente novamente.")
+        return redirect(url_for("cadastro_autor"))
+
+    # Redirecionar para a página de confirmação
+    return redirect(url_for("confirmacao_autor"))
+
+
+
+
+#Rota para informar a confirmação do cadastro do autor
+@app.route("/confirmacao_autor")
+@login_required
+def confirmacao_autor():
+    return render_template("confirmacao_autor.html")
+
+
+
 
 
 
