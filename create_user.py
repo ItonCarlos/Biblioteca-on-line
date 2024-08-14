@@ -7,10 +7,10 @@ with app.app_context():
     db.create_all()
 
     # Criação de um usuário de teste
-    '''username = "admin"
+    username = "admin"
     password = "senha123"
-    admin = User(username=username, password=password)
+    admin = User(username=username, password=password,first_name='iton',last_name='Sangaletti',role='Admin',is_admin=True)
     db.session.add(admin)
-    db.session.commit()'''
+    db.session.commit()
 
-    #print(f"Usuário {username} criado com sucesso!")
+    print(f"Usuário {username} criado com sucesso!")
