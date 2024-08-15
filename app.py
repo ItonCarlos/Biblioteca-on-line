@@ -121,7 +121,7 @@ with app.app_context():
    
 #Criar a rota para exibir todos os livros
 @app.route("/inicio")
-@login_required
+#@login_required
 def inicio():
     livros = Livro.query.all()
     return render_template("lista.html", lista_de_livros=livros)
@@ -229,8 +229,8 @@ def admin_required(f):
     return decorated_function
 #Criar rota para cadastro de usuario
 @app.route("/cadastro", methods=["GET", "POST"])
-@login_required
-@admin_required
+#@login_required
+#@admin_required
 def cadastro():
     if request.method == "POST":
         username = request.form.get("username")
