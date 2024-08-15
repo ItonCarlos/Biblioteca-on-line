@@ -2,3 +2,10 @@ pandas
 flask==3.0.3
 uvicorn
 asgiref
+Flask
+Flask-SQLAlchemy
+flask_sqlalchemy
+Flask-Bcrypt
+Flask-Login
+
+
