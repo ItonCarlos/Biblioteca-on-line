@@ -254,6 +254,10 @@ def cadastro():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+        first_name = request.form.get("first_name")
+        last_name = request.form.get("last_name")
+        role = request.form.get("role")
+        is_admin = 'is_admin' in request.form  # Verifica se o checkbox está marcado
         # Verifique se o usuário já existe
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
@@ -261,11 +265,19 @@ def cadastro():
             return redirect(url_for("cadastro"))
 
         # Criação de um novo usuário
-        new_user = User(username=username, password=password)
+        new_user = User(
+            username=username,
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            role=role,
+            is_admin=is_admin
+        )
         db.session.add(new_user)
         db.session.commit()
         flash("Cadastro realizado com sucesso! Você já pode fazer login.")
         return redirect(url_for("login"))
+
     return render_template("cadastro.html")
 
 #Criar rota para exibir os livros
