@@ -99,7 +99,9 @@ def load_user(user_id):
 
 
     
+# Certifique-se de que o contexto da aplicação está ativado
 with app.app_context():
+    # Criação de todas as tabelas
     db.create_all()
 
     # Ler o arquivo CSV para um DataFrame
@@ -116,12 +118,30 @@ with app.app_context():
                 ativo=row["Ativo"] == "TRUE",
             )
             db.session.add(livro)
-    db.session.commit() 
+
+    # Criação de um usuário de teste
+    username = "admin"
+    password = "senha123"
+    if not User.query.filter_by(username=username).first():
+        admin = User(
+            username=username,
+            password=password,
+            first_name='iton',
+            last_name='Sangaletti',
+            role='Admin',
+            is_admin=True
+        )
+        db.session.add(admin)
+        print(f"Usuário {username} criado com sucesso!")
+
+    # Commit das alterações na base de dados
+    db.session.commit()
+
 
    
 #Criar a rota para exibir todos os livros
 @app.route("/inicio")
-#@login_required
+@login_required
 def inicio():
     livros = Livro.query.all()
     return render_template("lista.html", lista_de_livros=livros)
@@ -133,6 +153,7 @@ def curriculo():
 
 #Criar a rota para a página de adicionar novos livros
 @app.route("/novo")
+@login_required
 def novo():
     return render_template("novo.html", titulo="Novo Livro") 
 
@@ -229,8 +250,6 @@ def admin_required(f):
     return decorated_function
 #Criar rota para cadastro de usuario
 @app.route("/cadastro", methods=["GET", "POST"])
-#@login_required
-#@admin_required
 def cadastro():
     if request.method == "POST":
         username = request.form.get("username")
