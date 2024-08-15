@@ -366,7 +366,7 @@ def confirmacao_autor():
 
 
 
-
+asgi_app = WsgiToAsgi(app)
 
 if __name__ == "__main__":
     app.run(debug=True)
