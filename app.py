@@ -133,14 +133,12 @@ def curriculo():
 
 #Criar a rota para a página de adicionar novos livros
 @app.route("/novo")
-@login_required
 def novo():
     return render_template("novo.html", titulo="Novo Livro") 
 
 
 #Crir uma rota para processar o formulário e salvar o novo livro
 @app.route("/criar", methods=["POST"])
-@login_required
 def criar():
     titulo = request.form["titulo"]
     autor = request.form["autor"]
