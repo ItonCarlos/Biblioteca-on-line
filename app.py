@@ -140,7 +140,7 @@ with app.app_context():
 
    
 #Criar a rota para exibir todos os livros
-@app.route("/inicio")
+@app.route("/")
 @login_required
 def inicio():
     livros = Livro.query.all()
