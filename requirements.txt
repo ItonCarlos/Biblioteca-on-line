@@ -7,5 +7,6 @@ Flask-SQLAlchemy
 flask_sqlalchemy
 Flask-Bcrypt
 Flask-Login
+requests
 
 
